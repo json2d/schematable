@@ -3,8 +3,8 @@ import sqlalchemy as sa
 
 @attr.s(frozen=True)
 class SchemaTable(object):
-  schema: str = attr.ib()
   table: str = attr.ib()
+  schema = attr.ib(default=None, validator=attr.validators.instance_of((str, type(None))))
   stab: str = attr.ib()
   st: str = attr.ib()
   db_url: str = attr.ib(default='sqlite:///:memory:') # in-memory db
