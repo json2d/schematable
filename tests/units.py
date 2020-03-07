@@ -65,6 +65,20 @@ class TestEverything(unittest.TestCase):
     self.assertEqual(rows[0]['event_name'], 'walk the doggy 🐶')
     self.assertEqual(len(rows), 2)
 
+  def test_alias(self):
+    schdl = SchemaTable('schedule')
+
+    self.assertEqual(schdl.schema_table, 'schedule')
+    self.assertEqual(schdl.stab, 'schedule')
+    self.assertEqual(schdl.st, 'schedule')
+
+    schdl_temp = SchemaTable(schema='temp', table='schedule')
+
+    self.assertEqual(schdl_temp.schema_table, 'temp.schedule')
+    self.assertEqual(schdl_temp.stab, 'temp.schedule')
+    self.assertEqual(schdl_temp.st, 'temp.schedule')
+
+
   def test_immutable(self):
     schdl = SchemaTable(schema='main', table='schedule')
   
