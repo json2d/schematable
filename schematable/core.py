@@ -8,7 +8,7 @@ class SchemaTable(object):
   stab: str = attr.ib()
   st: str = attr.ib()
   db_url: str = attr.ib(default='sqlite:///:memory:') # in-memory db
-  engine = attr.ib()
+  engine: sa.engine.base.Engine = attr.ib()
 
   @db_url.validator
   def check_url(self, attribute, value):
