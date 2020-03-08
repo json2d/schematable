@@ -13,6 +13,15 @@ from schematable import SchemaTable
 
 class TestEverything(unittest.TestCase):
 
+  def test_least_resistance(self):
+    schdl = SchemaTable('schedule')
+
+    self.assertIn(schdl.db_url, ('sqlite://', 'sqlite:///:memory:'))
+    self.assertEqual(schdl.schema, None)
+    self.assertEqual(schdl.table, 'schedule')
+    self.assertEqual(schdl.stab, 'schedule')
+
+
   def test_base(self):
 
     schdl = SchemaTable(schema='main', table='schedule')
@@ -41,7 +50,7 @@ class TestEverything(unittest.TestCase):
     self.assertTrue(schdl.engine.dialect.has_table(schdl.engine, 'schedule'))
 
     insert_records_stmt = '''
-      INSERT INTO schedule (start_time, end_time, event_name, id) VALUES ('1583531261000', '1583534865000', 'walk dog', 1);
+      INSERT INTO schedule (start_time, end_time, event_name, id) VALUES ('1583531261000', '1583534865000', 'walk the doggy 🐶', 1);
     '''
     insert_records_stmt_2 = '''
       INSERT INTO schedule (start_time, end_time, event_name, id) VALUES ('1583708400000', '1583632800000', 'take a nap 😴', 2);
@@ -53,10 +62,23 @@ class TestEverything(unittest.TestCase):
     res = schdl.engine.execute('select * from schedule')
     rows = list(res)
 
-    self.assertEqual(rows[0]['event_name'], 'walk dog')
+    self.assertEqual(rows[0]['event_name'], 'walk the doggy 🐶')
     self.assertEqual(len(rows), 2)
 
-    
+  def test_alias(self):
+    schdl = SchemaTable('schedule')
+
+    self.assertEqual(schdl.schema_table, 'schedule')
+    self.assertEqual(schdl.stab, 'schedule')
+    self.assertEqual(schdl.st, 'schedule')
+
+    schdl_temp = SchemaTable(schema='temp', table='schedule')
+
+    self.assertEqual(schdl_temp.schema_table, 'temp.schedule')
+    self.assertEqual(schdl_temp.stab, 'temp.schedule')
+    self.assertEqual(schdl_temp.st, 'temp.schedule')
+
+
   def test_immutable(self):
     schdl = SchemaTable(schema='main', table='schedule')
   

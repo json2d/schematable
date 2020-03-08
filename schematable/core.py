@@ -3,24 +3,29 @@ import sqlalchemy as sa
 
 @attr.s(frozen=True)
 class SchemaTable(object):
-  schema: str = attr.ib()
   table: str = attr.ib()
-  stab: str = attr.ib()
+  schema = attr.ib(default=None, validator=attr.validators.instance_of((str, type(None))))
+  schema_table: str = attr.ib()
+  stab: str = attr.ib() # 🗡
   st: str = attr.ib()
   db_url: str = attr.ib(default='sqlite:///:memory:') # in-memory db
-  engine = attr.ib()
+  engine: sa.engine.base.Engine = attr.ib()
 
   @db_url.validator
   def check_url(self, attribute, value):
     pass
 
-  @stab.default
-  def stab_default(self):
-    return self.schema + '.' + self.table
+  @schema_table.default
+  def schema_table_default(self):
+    return self.table if self.schema is None else self.schema + '.' + self.table
 
-  @st.default # alias of stab
+  @stab.default # alias of schema_table
+  def stab_default(self):
+    return self.schema_table
+
+  @st.default # even shorter alias of schema_table
   def st_default(self):
-    return self.stab
+    return self.schema_table
 
   @engine.default
   def engine_default(self):
