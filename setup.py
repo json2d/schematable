@@ -4,7 +4,7 @@ setup(
   packages = ['schematable'], # Chose the same as "name"
   version = '0.1.0', # Start with a small number and increase it with every change you make
   license= 'MIT', # Chose a license from here: https://help.github.com/articles/licensing-a-repository
-  description = 'utility library for working with SQL schema tables', # Give a short description about your library
+  description = 'a Python utility library for working with SQL tables', # Give a short description about your library
   author = 'Jason Yung',
   author_email = 'json.yung@gmail.com',
   url = 'https://github.com/json2d/schematable', # Provide either the link to your github or to your website
