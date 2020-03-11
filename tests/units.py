@@ -91,6 +91,53 @@ class TestEverything(unittest.TestCase):
 
     self.assertEqual(schdl_temp.schema, 'temp')
     
+  def test_ext_url(self):
 
+    valid_urls = [
+      'main.schedule',
+      'schedule',
+      '.schedule',
+      'postgres://user:password@localhost:5432/postgres#main.schedule',
+      'postgres://user:password@localhost:5432/postgres#schedule',
+      'sqlite:///db/test.sqlite#schedule',
+      'sqlite:///db/test.sqlite#main.schedule',
+    ]
+
+    try:
+      for url in valid_urls:
+        s = SchemaTable(url)
+        self.assertEqual(s.table, 'schedule')
+    except:
+      self.fail('validation should have passed but exception was raised')
+
+
+    invalid_urls = [
+      'main',
+      'main.',
+      'postgres://user:password@localhost:5432/postgres',
+      'postgres://user:password@localhost:5432/postgres#main',
+    ]
+
+    with self.assertRaises(Exception):
+      for url in invalid_urls:
+        SchemaTable(url)
+
+
+    schdl = SchemaTable('schedule')
+
+    self.assertIn(schdl.url, ('sqlite://#schedule', 'sqlite:///:memory:#schedule'))
+    self.assertIn(schdl.db_url, ('sqlite://', 'sqlite:///:memory:'))
+    self.assertEqual(schdl.schema, None)
+    self.assertEqual(schdl.table, 'schedule')
+    self.assertEqual(schdl.schema_table, 'schedule')
+
+    schdl = SchemaTable('main.schedule')
+
+    self.assertIn(schdl.url, ('sqlite://#main.schedule', 'sqlite:///:memory:#main.schedule'))
+    self.assertIn(schdl.db_url, ('sqlite://', 'sqlite:///:memory:'))
+    self.assertEqual(schdl.schema, 'main')
+    self.assertEqual(schdl.table, 'schedule')
+    self.assertEqual(schdl.schema_table, 'main.schedule')
+        
 
 unittest.main()
