@@ -65,3 +65,61 @@ schdl = st.SchemaTable(
 )
 
 ```
+
+`schematable` also integrates with `pandas` workflows like a charm, reducing the noise and friction involved with managing the arguments for their SQL related functions:
+
+```py
+import pandas as pd
+import datetime
+
+df = pd.read_sql_table(schdl.table, schdl.engine, schld.schema) # neat - everything's in one place
+
+df['event_name']
+df['start_time'] > datetime.datetime.now()
+df['extracted_time'] = datetime.datetime.now()
+```
+
+## Cross database workflow
+
+Working with multiple databases at the same time should be dead simple.
+
+Eg. Lets say we wanted to create a new local test database on-the-fly with some data queried from our production database.
+
+Here's the `schematable` + `pandas` way:
+
+```py
+import schematable as st
+import pandas as pd
+
+# extract dataset from production db
+
+schdl = st.SchemaTable(
+  db_url='postgres://user:password@localhost:5432/foo',
+  schema='bar',
+  table='schedule'
+)
+
+# select everything from 2019
+
+select_dataset_query = '''
+  select * from {schema_table} 
+  where start_date between date('{from_date}') and date('{to_date}')
+'''.format(
+  schema_table=schdl.st, 
+  from_date='2019-01-01',
+  to_date='2019-12-31'
+)
+
+df = pd.read_sql(select_dataset_query, schdl.table, schdl.engine)
+
+# load dataset into (new) test db
+
+test_schdl = st.SchemaTable(
+  db_url='sqlite:///db/test-2019.sqlite',
+  table='schedule'
+)
+
+df.to_sql(test_schdl.table, test_schdl.engine, if_exists='replace', index=false)
+
+```
+
