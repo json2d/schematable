@@ -12,10 +12,10 @@ schdl = st.SchemaTable('postgres://user:password@localhost:5432/foo#bar.schedule
 Specifically, we'd like a parseable url where only the `table` portion is required and the rest (`schema` and `db_url`) are optional with defaults to match our `SchemaTable` constructor spec:
 
 ```py
-SchemaTable('schedule')
-SchemaTable('bar.schedule')
-SchemaTable('postgres://user:password@localhost:5432/foo#schedule')
-SchemaTable('postgres://user:password@localhost:5432/foo#bar.schedule')
+SchemaTable.parse('schedule')
+SchemaTable.parse('bar.schedule')
+SchemaTable.parse('postgres://user:password@localhost:5432/foo#schedule')
+SchemaTable.parse('postgres://user:password@localhost:5432/foo#bar.schedule')
 
 ```
 
