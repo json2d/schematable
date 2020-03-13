@@ -14,3 +14,7 @@ install:
 # command to run tests
 script:
   - python tests/units.py
+branches:
+  only:
+  - master
+  - develop
