@@ -90,7 +90,67 @@ class TestEverything(unittest.TestCase):
     schdl_temp = attr.evolve(schdl, schema = 'temp')
 
     self.assertEqual(schdl_temp.schema, 'temp')
-    
 
+  def test_table_validation(self):
+
+    invalid_tables = [
+      None,
+      42,
+      'schedules!',
+      'schedules...',
+      'sqlite:///db/test.sqlite',
+      '!@#$%^&*()+={}[]\|;:\'",<.>/?'
+    ]
+
+    for table in invalid_tables:
+      with self.assertRaises(Exception):
+        SchemaTable(table)
+
+  def test_ext_url(self):
+
+    valid_urls = [
+      'main.schedule',
+      '#main.schedule',
+      'schedule',
+      '#schedule',
+      'sqlite:///db/test.sqlite#schedule',
+      'sqlite:///db/test.sqlite#main.schedule',
+    ]
+
+    try:
+      for url in valid_urls:
+        schdl = SchemaTable.parse(url)
+        self.assertEqual(schdl.table, 'schedule')
+    except:
+      self.fail('validation should have passed but exception was raised')
+
+
+    invalid_urls = [
+      'main',
+      'main.',
+      'sqlite:///db/test.sqlite',
+    ]
+
+    for url in invalid_urls:
+      with self.assertRaises(Exception):
+        SchemaTable.parse(url)
+
+
+    schdl = SchemaTable.parse('schedule')
+
+    self.assertIn(schdl.url, ('sqlite://#schedule', 'sqlite:///:memory:#schedule'))
+    self.assertIn(schdl.db_url, ('sqlite://', 'sqlite:///:memory:'))
+    self.assertEqual(schdl.schema, None)
+    self.assertEqual(schdl.table, 'schedule')
+    self.assertEqual(schdl.schema_table, 'schedule')
+
+    schdl = SchemaTable.parse('main.schedule')
+
+    self.assertIn(schdl.url, ('sqlite://#main.schedule', 'sqlite:///:memory:#main.schedule'))
+    self.assertIn(schdl.db_url, ('sqlite://', 'sqlite:///:memory:'))
+    self.assertEqual(schdl.schema, 'main')
+    self.assertEqual(schdl.table, 'schedule')
+    self.assertEqual(schdl.schema_table, 'main.schedule')
+        
 
 unittest.main()
