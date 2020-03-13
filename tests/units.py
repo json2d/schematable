@@ -90,7 +90,22 @@ class TestEverything(unittest.TestCase):
     schdl_temp = attr.evolve(schdl, schema = 'temp')
 
     self.assertEqual(schdl_temp.schema, 'temp')
-    
+
+  def test_table_validation(self):
+
+    invalid_tables = [
+      None,
+      42,
+      'schedules!',
+      'schedules...',
+      'sqlite:///db/test.sqlite',
+      '!@#$%^&*()+={}[]\|;:\'",<.>/?'
+    ]
+
+    for table in invalid_tables:
+      with self.assertRaises(Exception):
+        SchemaTable(table)
+
   def test_ext_url(self):
 
     valid_urls = [
