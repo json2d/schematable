@@ -59,9 +59,48 @@ With `sqlalchemy` under the hood you can connect to tables from all types of SQL
 import schematable as st
 
 schdl = st.SchemaTable(
-  db_url='postgres://user:password@localhost:5432/foo,
+  db_url='postgres://user:password@localhost:5432/foo',
   schema='bar',
   table='schedule'
 )
 
+```
+
+## Extended URLs
+
+Take a standard db URL and append a schema and table to the end - you get what we call a  **schematable URL**, which can be parsed into a `SchemaTable` instance:
+
+```py
+from schematable import SchemaTable
+
+schdl = SchemaTable.parse('postgres://user:password@localhost:5432/foo#bar.schedule')
+
+print(schdl.db_url) # postgres://user:password@localhost:5432/foo
+print(schdl.schema) # bar
+print(schdl.table) # schedule
+
+```
+
+They're primarily handy for usecases involving serialization and deserialization of schematables:
+
+```env
+# staging.env
+SCHEDULE_SCHEMATABLE_URL=sqlite:///staging.db#bar.schedule
+```
+
+```py
+schdl = SchemaTable.parse(os.environ['SCHEDULE_SCHEMATABLE_URL'])
+
+print(schdl.db_url) # sqlite:///staging.db
+print(schdl.schema) # bar
+print(schdl.table) # schedule
+```
+
+More specifically, schematable URLs are composed of a `db_url`, `table`, and `schema` component where (just like the `SchemaTable` constructor) only the `table` component is required:
+
+```py
+SchemaTable.parse('schedule')
+SchemaTable.parse('bar.schedule')
+SchemaTable.parse('sqlite:///staging.db#schedule')
+SchemaTable.parse('postgres://user:password@localhost:5432/foo#bar.schedule')
 ```
