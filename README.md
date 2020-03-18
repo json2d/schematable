@@ -2,13 +2,13 @@
 
 a Python utility library for working with SQL tables
 
-# Install
+## Install
 
 ```
 pip install schematable
 ```
 
-# Basic usage
+## Basic usage
 
 Go from zero to SQL query in seconds with near-zero boilerplate:
 
@@ -121,5 +121,40 @@ test_schdl = st.SchemaTable(
 
 df.to_sql(test_schdl.table, test_schdl.engine, if_exists='replace', index=false)
 
+```
+
+## Boilerplate reduction
+
+Here are before-and-after snippets showing some code you won't have to write anymore using `schematable` to do your SQL things:
+
+Eg. Here's checking if a table exists:
+
+#### before
+```py
+import sqlalchemy as sa
+
+schdl_db_url = 'sqlite://'
+schdl_table = 'schedule'
+schdl_engine = sa.create_engine(schdl_db_url)
+if schdl_engine.has_table(schdl_table):
+  # do the thing
+```
+
+#### after
+```py
+import schematable as st
+
+schl = st.parse('schedule')
+if schdl.engine.has_table(schdl.table, schdl.schema):
+  # do the thing
+```
+
+#### after next
+```py
+import schematable as st
+
+schl = st.parse('schedule')
+if schdl.exists():
+  # do the thing
 ```
 
