@@ -2,13 +2,13 @@
 
 a Python utility library for working with SQL tables
 
-# Install
+## Install
 
 ```
 pip install schematable
 ```
 
-# Basic usage
+## Basic usage
 
 Go from zero to SQL query in seconds with near-zero boilerplate:
 
@@ -66,6 +66,63 @@ schdl = st.SchemaTable(
 
 ```
 
+`schematable` also integrates with `pandas` workflows like a charm, reducing the noise and friction involved with managing the arguments for their SQL related functions:
+
+```py
+import pandas as pd
+import datetime
+
+df = pd.read_sql_table(schdl.table, schdl.engine, schld.schema) # neat - everything's in one place
+
+df['event_name']
+df['start_time'] > datetime.datetime.now()
+df['extracted_time'] = datetime.datetime.now()
+```
+
+## Cross database workflow
+
+Working with multiple databases at the same time should be dead simple.
+
+Eg. Lets say we wanted to create a new local test database on-the-fly with some data queried from our production database.
+
+Here's the `schematable` + `pandas` way:
+
+```py
+import schematable as st
+import pandas as pd
+
+# extract dataset from production db
+
+schdl = st.SchemaTable(
+  db_url='postgres://user:password@localhost:5432/foo',
+  schema='bar',
+  table='schedule'
+)
+
+# select everything from 2019
+
+select_dataset_query = '''
+  select * from {schema_table} 
+  where start_date between date('{from_date}') and date('{to_date}')
+'''.format(
+  schema_table=schdl.st, 
+  from_date='2019-01-01',
+  to_date='2019-12-31'
+)
+
+df = pd.read_sql(select_dataset_query, schdl.table, schdl.engine)
+
+# load dataset into (new) test db
+
+test_schdl = st.SchemaTable(
+  db_url='sqlite:///db/test-2019.sqlite',
+  table='schedule'
+)
+
+df.to_sql(test_schdl.table, test_schdl.engine, if_exists='replace', index=false)
+
+```
+
 ## Extended URLs
 
 Take a standard db URL and append a schema and table to the end - you get what we call a  **schematable URL**, which can be parsed into a `SchemaTable` instance:
@@ -104,3 +161,39 @@ SchemaTable.parse('bar.schedule')
 SchemaTable.parse('sqlite:///staging.db#schedule')
 SchemaTable.parse('postgres://user:password@localhost:5432/foo#bar.schedule')
 ```
+
+## Boilerplate reduction
+
+Here are before-and-after snippets showing some code you won't have to write anymore using `schematable` to do your SQL things:
+
+Eg. Here's checking if a table exists:
+
+#### before
+```py
+import sqlalchemy as sa
+
+schdl_db_url = 'sqlite://'
+schdl_table = 'schedule'
+schdl_engine = sa.create_engine(schdl_db_url)
+if schdl_engine.has_table(schdl_table):
+  # do the thing
+```
+
+#### after
+```py
+import schematable as st
+
+schl = st.parse('schedule')
+if schdl.engine.has_table(schdl.table, schdl.schema):
+  # do the thing
+```
+
+#### after next
+```py
+import schematable as st
+
+schl = st.parse('schedule')
+if schdl.exists():
+  # do the thing
+```
+
