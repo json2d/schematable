@@ -18,10 +18,6 @@ class SchemaTable(object):
   def url_default(self):
     return '#'.join([self.db_url, self.schema_table])
 
-  @db_url.validator
-  def check_url(self, attribute, value):
-    pass
-
   @schema_table.default
   def schema_table_default(self):
     return self.table if self.schema is None else self.schema + '.' + self.table
