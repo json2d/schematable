@@ -1,3 +1,7 @@
+[![PyPI version](https://badge.fury.io/py/schematable.svg)](https://badge.fury.io/py/schematable)
+[![Build Status](https://travis-ci.com/json2d/schematable.svg?branch=master)](https://travis-ci.com/json2d/schematable) 
+[![Coverage Status](https://coveralls.io/repos/github/json2d/schematable/badge.svg?branch=master)](https://coveralls.io/github/json2d/schematable?branch=master)
+
 # schematable
 
 a Python utility library for working with SQL tables
